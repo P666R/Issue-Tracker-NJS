@@ -1,0 +1,11 @@
+{
+  "name": "issue-tracker-njs",
+  "version": "1.0.0",
+  "description": "issue tracker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "PRoy",
+  "license": "ISC"
+}
