@@ -13,6 +13,12 @@ const projectSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Project author is required'],
   },
+  issues: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Issue',
+    },
+  ],
 });
 
 const Project = mongoose.model('Project', projectSchema);
