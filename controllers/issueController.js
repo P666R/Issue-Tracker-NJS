@@ -1,15 +1,14 @@
 const Issue = require('../models/issueModel');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.getAllIssues = async (req, res) => {
   try {
-    let query = {};
+    const features = new APIFeatures(Issue.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields();
 
-    if (req.query.labels) {
-      const labelsToFilter = req.query.labels.split(',');
-      query = { labels: { $in: labelsToFilter } };
-    }
-
-    const issues = await Issue.find(query);
+    const issues = await features.query;
 
     res.status(200).json({
       status: 'success',
