@@ -1,5 +1,6 @@
 const Project = require('../models/projectModel');
 const APIFeatures = require('../utils/apiFeatures');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getAllProjects = catchAsync(async (req, res, next) => {
@@ -18,10 +19,16 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createProject = catchAsync(async (req, res, next) => {
-  const project = await Project.create(req.body);
+exports.getProject = catchAsync(async (req, res, next) => {
+  const project = await Project.findById(req.params.id).populate({
+    path: 'issues',
+  });
 
-  res.status(201).json({
+  if (!project) {
+    return next(new AppError('No project found with that ID', 404));
+  }
+
+  res.status(200).json({
     status: 'success',
     data: {
       project,
@@ -29,12 +36,10 @@ exports.createProject = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getProject = catchAsync(async (req, res, next) => {
-  const project = await Project.findById(req.params.id).populate({
-    path: 'issues',
-  });
+exports.createProject = catchAsync(async (req, res, next) => {
+  const project = await Project.create(req.body);
 
-  res.status(200).json({
+  res.status(201).json({
     status: 'success',
     data: {
       project,
@@ -48,6 +53,10 @@ exports.updateProject = catchAsync(async (req, res, next) => {
     runValidators: true,
   });
 
+  if (!project) {
+    return next(new AppError('No project found with that ID', 404));
+  }
+
   res.status(200).json({
     status: 'success',
     data: {
@@ -57,7 +66,11 @@ exports.updateProject = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteProject = catchAsync(async (req, res, next) => {
-  await Project.findByIdAndDelete(req.params.id);
+  const project = await Project.findByIdAndDelete(req.params.id);
+
+  if (!project) {
+    return next(new AppError('No project found with that ID', 404));
+  }
 
   res.status(204).json({
     status: 'success',
