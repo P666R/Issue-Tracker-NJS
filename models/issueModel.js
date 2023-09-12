@@ -15,7 +15,7 @@ const issueSchema = new mongoose.Schema(
     labels: [
       {
         type: String,
-        required: [true, 'Label is required'],
+        // required: [true, 'Label is required'],
         trim: true,
       },
     ],
