@@ -36,8 +36,7 @@ const connectAndStartServer = async () => {
     await mongoose.connect(DB);
     console.log('Database connection successful');
   } catch (err) {
-    console.log(err.name, err.message, '\nExiting...');
-    return;
+    return console.error(err.name, err.message, '\nExiting...💥');
   }
 
   server.listen(port, () => {
@@ -46,16 +45,14 @@ const connectAndStartServer = async () => {
 };
 
 // Handle unhandled rejections
-const handleRejection = (err) => {
-  console.log(
+process.on('unhandledRejection', (err) => {
+  console.error(
     'Unhandled Rejection! 💥 Shutting down...\n',
     err.name,
     err.message,
   );
   server.close(() => process.exit(1));
-};
-
-process.on('unhandledRejection', handleRejection);
+});
 
 // Handle SIGTERM signal
 process.on('SIGTERM', () => {

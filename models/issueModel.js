@@ -2,26 +2,26 @@ const mongoose = require('mongoose');
 
 const issueSchema = new mongoose.Schema(
   {
-    title: {
+    issueName: {
       type: String,
-      required: [true, 'Title is required'],
+      required: true,
       trim: true,
     },
-    description: {
+    issueDescription: {
       type: String,
-      required: [true, 'Description is required'],
+      required: true,
       trim: true,
     },
-    labels: [
+    issueLabels: [
       {
         type: String,
-        // required: [true, 'Label is required'],
+        required: true,
         trim: true,
       },
     ],
-    author: {
+    issueAuthor: {
       type: String,
-      required: [true, 'Author is required'],
+      required: true,
       trim: true,
     },
   },

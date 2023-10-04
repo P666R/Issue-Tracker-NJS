@@ -1,0 +1,26 @@
+#navbar__outer {
+  background: #101d2c;
+  padding: 14px;
+  position: sticky;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+#navbar__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#logo__text a {
+  text-decoration: none;
+  color: #ba265d;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+#logo__text img {
+  width: 35px;
+}

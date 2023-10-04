@@ -1,79 +1,39 @@
 const Project = require('../models/projectModel');
-const APIFeatures = require('../utils/apiFeatures');
-const AppError = require('../utils/appError');
-const catchAsync = require('../utils/catchAsync');
+const Issue = require('../models/issueModel');
 
-exports.getAllProjects = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(Project.find(), req.query)
-    .sort()
-    .limitFields();
+// controller for adding the project through form submission
+exports.addProject = async (req, res) => {
+  try {
+    const { name, description, author } = req.body;
 
-  const projects = await features.query;
+    await Project.create({
+      projectName: name,
+      projectDescription: description,
+      projectAuthor: author,
+    });
 
-  res.status(200).json({
-    status: 'success',
-    results: projects.length,
-    data: {
-      projects,
-    },
-  });
-});
-
-exports.getProject = catchAsync(async (req, res, next) => {
-  const project = await Project.findById(req.params.id).populate({
-    path: 'issues',
-  });
-
-  if (!project) {
-    return next(new AppError('No project found with that ID', 404));
+    res.redirect('back');
+  } catch (error) {
+    console.log('error while adding project', error);
+    res.redirect('back');
   }
+};
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      project,
-    },
-  });
-});
+// controller for deleting the project from database
+exports.deleteProject = async (req, res) => {
+  try {
+    const projectId = req.query.project_id;
 
-exports.createProject = catchAsync(async (req, res, next) => {
-  const project = await Project.create(req.body);
+    const project = await Project.findById(projectId).populate('issues');
 
-  res.status(201).json({
-    status: 'success',
-    data: {
-      project,
-    },
-  });
-});
+    const issueIds = project.issues.map((issue) => issue._id);
+    await Issue.deleteMany({ _id: { $in: issueIds } });
 
-exports.updateProject = catchAsync(async (req, res, next) => {
-  const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+    await Project.findByIdAndDelete(projectId);
 
-  if (!project) {
-    return next(new AppError('No project found with that ID', 404));
+    res.redirect('back');
+  } catch (error) {
+    console.log('error deleting project', error);
+    res.redirect('back');
   }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      project,
-    },
-  });
-});
-
-exports.deleteProject = catchAsync(async (req, res, next) => {
-  const project = await Project.findByIdAndDelete(req.params.id);
-
-  if (!project) {
-    return next(new AppError('No project found with that ID', 404));
-  }
-
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-});
+};

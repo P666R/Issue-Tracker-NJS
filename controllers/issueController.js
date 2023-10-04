@@ -1,78 +1,128 @@
+const Project = require('../models/projectModel');
 const Issue = require('../models/issueModel');
-const APIFeatures = require('../utils/apiFeatures');
-const AppError = require('../utils/appError');
-const catchAsync = require('../utils/catchAsync');
 
-exports.getAllIssues = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(Issue.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields();
+// function for getting unique authors name to show in the filter form
+const getAuthors = async (projectId) => {
+  try {
+    const globalProject = await Project.findById(projectId).populate({
+      path: 'issues',
+    });
 
-  const issues = await features.query;
-
-  res.status(200).json({
-    status: 'success',
-    results: issues.length,
-    data: {
-      issues,
-    },
-  });
-});
-
-exports.getIssue = catchAsync(async (req, res, next) => {
-  const issue = await Issue.findById(req.params.id);
-
-  if (!issue) {
-    return next(new AppError('No issue found with that ID', 404));
+    const authorSet = new Set(
+      globalProject.issues.map((issue) => issue.issueAuthor),
+    );
+    const authorNames = Array.from(authorSet);
+    return authorNames;
+  } catch (error) {
+    console.log('error in getting authors', error);
   }
+};
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      issue,
-    },
-  });
-});
+// controller for showing project issues on issue page
+exports.projectIssues = async (req, res) => {
+  try {
+    const project = await Project.findById(req.query.project_id).populate(
+      'issues',
+    );
 
-exports.createIssue = catchAsync(async (req, res, next) => {
-  const issue = await Issue.create(req.body);
+    const authorSet = new Set(project.issues.map((issue) => issue.issueAuthor));
 
-  res.status(201).json({
-    status: 'success',
-    data: {
-      issue,
-    },
-  });
-});
+    const authorNames = Array.from(authorSet);
 
-exports.updateIssue = catchAsync(async (req, res, next) => {
-  const issue = await Issue.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!issue) {
-    return next(new AppError('No issue found with that ID', 404));
+    res.render('issue', {
+      title: 'IssueTracker | ProjectIssue',
+      project,
+      authorNames,
+    });
+  } catch (error) {
+    console.log('error showing project issues', error);
   }
+};
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      issue,
-    },
-  });
-});
+// controller for adding the issue to the database
+exports.addIssue = async (req, res) => {
+  try {
+    const { name, author, description, lables } = req.body;
 
-exports.deleteIssue = catchAsync(async (req, res, next) => {
-  const issue = await Issue.findByIdAndDelete(req.params.id);
+    const issue = await Issue.create({
+      issueName: name,
+      issueAuthor: author,
+      issueDescription: description,
+      issueLabels: lables,
+    });
 
-  if (!issue) {
-    return next(new AppError('No issue found with that ID', 404));
+    const project = await Project.findById(req.query.project_id);
+    project.issues.push(issue);
+    await project.save();
+
+    res.redirect(`/issues/projectIssues?project_id=${req.query.project_id}`);
+  } catch (error) {
+    console.log('error in adding issue', error);
   }
+};
 
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-});
+// controller for searching the issue based on issue title or issue description
+exports.searchIssues = async (req, res) => {
+  try {
+    const searchText = req.body.search__text;
+    const project = await Project.findById(req.query.project_id).populate({
+      path: 'issues',
+      match: {
+        $or: [{ issueName: searchText }, { issueDescription: searchText }],
+      },
+    });
+
+    const authorNames = await getAuthors(req.query.project_id);
+
+    res.render('issue', {
+      title: 'IssueTracker | ProjectIssue',
+      project,
+      authorNames,
+    });
+  } catch (error) {
+    console.log('error in searching issue', error);
+  }
+};
+
+// controller for filtering the issues based on labels
+exports.filterIssues = async (req, res) => {
+  try {
+    const project = await Project.findById(req.query.project_id).populate({
+      path: 'issues',
+      match: {
+        $or: [
+          { issueLabels: { $in: req.body.f_lables } },
+          { issueAuthor: { $in: req.body.authors } },
+        ],
+      },
+    });
+
+    const authorNames = await getAuthors(req.query.project_id);
+
+    res.render('issue', {
+      title: 'IssueTracker | ProjectIssue',
+      project,
+      authorNames,
+    });
+  } catch (error) {
+    console.log('error in filtering issue', error);
+  }
+};
+
+// controller for deleting the issue from database
+exports.deleteIssue = async (req, res) => {
+  try {
+    const projectId = req.query.project_id;
+    const issueId = req.query.issue_id;
+
+    await Project.findByIdAndUpdate(projectId, {
+      $pull: { issues: issueId },
+    });
+
+    await Issue.deleteOne({ _id: issueId });
+
+    res.redirect(`/issues/projectIssues?project_id=${projectId}`);
+  } catch (error) {
+    console.log('error deleting issue', error);
+  }
+};
