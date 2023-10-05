@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Define the schema for the issue model
 const issueSchema = new mongoose.Schema(
   {
     issueName: {
@@ -31,6 +32,7 @@ const issueSchema = new mongoose.Schema(
   },
 );
 
+// Create the Issue model using the schema
 const Issue = mongoose.model('Issue', issueSchema);
 
 module.exports = Issue;
