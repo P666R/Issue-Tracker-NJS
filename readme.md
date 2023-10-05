@@ -22,6 +22,47 @@ This is an issue tracker application built using Node.js and EJS. It allows user
 
 ![screen](/public/img/filter.jpg)
 
+## Folder structure
+
+- 📂 **Issue\-Tracker\-NJS**
+  - 📂 **controllers**
+    - 📄 [homeController.js](controllers/homeController.js)
+    - 📄 [issueController.js](controllers/issueController.js)
+    - 📄 [projectController.js](controllers/projectController.js)
+  - 📂 **models**
+    - 📄 [issueModel.js](models/issueModel.js)
+    - 📄 [projectModel.js](models/projectModel.js)
+  - 📂 **public**
+    - 📂 **css**
+      - 📄 [footer.css](public/css/footer.css)
+      - 📄 [header.css](public/css/header.css)
+      - 📄 [home.css](public/css/home.css)
+      - 📄 [issue.css](public/css/issue.css)
+      - 📄 [layout.css](public/css/layout.css)
+    - 📂 **img**
+    - 📂 **js**
+  - 📂 **routes**
+    - 📄 [index.js](routes/index.js)
+    - 📄 [issueRoutes.js](routes/issueRoutes.js)
+    - 📄 [projectRoutes.js](routes/projectRoutes.js)
+  - 📂 **views**
+    - 📄 [\_filterIssueLabels.ejs](views/_filterIssueLabels.ejs)
+    - 📄 [\_footer.ejs](views/_footer.ejs)
+    - 📄 [\_header.ejs](views/_header.ejs)
+    - 📄 [\_issueLabels.ejs](views/_issueLabels.ejs)
+    - 📄 [home.ejs](views/home.ejs)
+    - 📄 [issue.ejs](views/issue.ejs)
+    - 📄 [layout.ejs](views/layout.ejs)
+  - 📄 [.eslintrc.json](.eslintrc.json)
+  - 📄 [.gitignore](.gitignore)
+  - 📄 [.prettierrc](.prettierrc)
+  - 📄 [app.js](app.js)
+  - 📄 [config.env](config.env)
+  - 📄 [package\-lock.json](package-lock.json)
+  - 📄 [package.json](package.json)
+  - 📄 [readme.md](readme.md)
+  - 📄 [server.js](server.js)
+
 ## Installation And Usage
 
 1. Git clone https://github.com/P666R/Issue-Tracker-NJS.git
